@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GripRack — The Smarter Bike Rack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --red: #CC1122;
+            --red-dark: #A80E1C;
+            --black: #0D0D0D;
+            --dark: #1A1A1A;
+            --white: #FFFFFF;
+            --off-white: #F7F7F7;
+            --gray: #E8E8E8;
+            --mid-gray: #888888;
+            --text: #1A1A1A;
+        }
+
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--white); overflow-x: hidden; }
+
+        /* ── PAGE SYSTEM ── */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* ── NAVIGATION ── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 60px; height: 72px;
+            background: rgba(13,13,13,0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .nav-logo {
+            font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
+            color: var(--white); cursor: pointer; text-decoration: none;
+        }
+        .nav-logo span { color: var(--red); }
+        .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+        .nav-links a {
+            color: rgba(255,255,255,0.65); text-decoration: none;
+            font-size: 14px; font-weight: 500; transition: color 0.2s; cursor: pointer;
+        }
+        .nav-links a:hover { color: var(--white); }
+        .nav-cta {
+            background: var(--red) !important; color: var(--white) !important;
+            padding: 10px 22px; border-radius: 6px; font-weight: 700 !important;
+            transition: background 0.2s !important;
+        }
+        .nav-cta:hover { background: var(--red-dark) !important; }
+
+        /* ── HERO ── */
+        .hero {
+            min-height: 100vh; background: var(--black);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; text-align: center;
+            padding: 130px 40px 80px; position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 50% 65%, rgba(204,17,34,0.13) 0%, transparent 68%);
+            pointer-events: none;
+        }
+        .hero-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(204,17,34,0.12); border: 1px solid rgba(204,17,34,0.28);
+            color: #FF4455; padding: 6px 18px; border-radius: 100px;
+            font-size: 11px; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; margin-bottom: 28px;
+        }
+        .hero h1 {
+            font-size: clamp(46px, 7.5vw, 92px); font-weight: 900;
+            color: var(--white); line-height: 1.02; letter-spacing: -3px;
+            max-width: 860px; margin-bottom: 22px;
+        }
+        .hero h1 span { color: var(--red); }
+        .hero-sub {
+            font-size: 18px; color: rgba(255,255,255,0.55); max-width: 520px;
+            line-height: 1.75; margin-bottom: 44px; font-weight: 400;
+        }
+        .hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+        .btn-primary {
+            background: var(--red); color: var(--white); padding: 15px 34px;
+            border-radius: 8px; font-size: 15px; font-weight: 700;
+            text-decoration: none; display: inline-flex; align-items: center;
+            gap: 8px; border: 2px solid var(--red); cursor: pointer;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .btn-primary:hover {
+            background: var(--red-dark); border-color: var(--red-dark);
+            transform: translateY(-2px); box-shadow: 0 8px 28px rgba(204,17,34,0.38);
+        }
+        .btn-outline {
+            background: transparent; color: rgba(255,255,255,0.78); padding: 15px 34px;
+            border-radius: 8px; font-size: 15px; font-weight: 600;
+            text-decoration: none; display: inline-flex; align-items: center;
+            gap: 8px; border: 2px solid rgba(255,255,255,0.18); cursor: pointer;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .btn-outline:hover { border-color: rgba(255,255,255,0.45); color: var(--white); }
+
+        .hero-img-wrap {
+            margin-top: 64px; position: relative;
+            max-width: 920px; width: 100%;
+        }
+        .hero-img-wrap img {
+            width: 100%; border-radius: 18px; display: block;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .hero-img-fade {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 220px;
+            background: linear-gradient(to top, var(--black), transparent);
+            border-radius: 0 0 18px 18px; pointer-events: none;
+        }
+
+        /* ── STATS BAR ── */
+        .stats-bar {
+            background: var(--dark); padding: 34px 60px;
+            display: flex; justify-content: center; gap: 80px; flex-wrap: wrap;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .stat { text-align: center; }
+        .stat-n { font-size: 38px; font-weight: 900; color: var(--red); letter-spacing: -1.5px; line-height: 1; }
+        .stat-l { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 7px; font-weight: 500; letter-spacing: 0.5px; }
+
+        /* ── SHARED SECTION ── */
+        section { padding: 100px 60px; }
+        .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--red); margin-bottom: 14px; }
+        .section-h { font-size: clamp(28px, 4vw, 50px); font-weight: 900; letter-spacing: -1.5px; line-height: 1.06; color: var(--text); margin-bottom: 18px; }
+        .section-p { font-size: 17px; color: var(--mid-gray); line-height: 1.75; max-width: 540px; }
+
+        /* ── FEATURES ── */
+        .features { background: var(--white); }
+        .feat-header { max-width: 580px; margin: 0 auto 64px; text-align: center; }
+        .feat-header .section-p { margin: 0 auto; }
+        .feat-grid {
+            display: grid; grid-template-columns: repeat(4,1fr);
+            gap: 20px; max-width: 1140px; margin: 0 auto;
+        }
+        .feat-card {
+            background: var(--off-white); border-radius: 18px; padding: 34px 26px;
+            border: 1px solid var(--gray); transition: all 0.3s;
+        }
+        .feat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 48px rgba(0,0,0,0.07);
+            border-color: rgba(204,17,34,0.18);
+        }
+        .feat-icon {
+            width: 52px; height: 52px; background: rgba(204,17,34,0.1);
+            border-radius: 13px; display: flex; align-items: center;
+            justify-content: center; margin-bottom: 20px; font-size: 24px;
+        }
+        .feat-title { font-size: 16px; font-weight: 800; margin-bottom: 10px; }
+        .feat-desc { font-size: 14px; color: var(--mid-gray); line-height: 1.72; }
+
+        /* ── HOW IT WORKS ── */
+        .hiw { background: var(--dark); }
+        .hiw .section-h { color: var(--white); }
+        .hiw .section-p { color: rgba(255,255,255,0.45); }
+        .hiw-head { max-width: 540px; margin-bottom: 64px; }
+        .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 40px; max-width: 960px; }
+        .step-num { font-size: 72px; font-weight: 900; color: rgba(204,17,34,0.18); line-height: 1; letter-spacing: -3px; margin-bottom: 16px; }
+        .step-t { font-size: 20px; font-weight: 800; color: var(--white); margin-bottom: 10px; }
+        .step-d { font-size: 15px; color: rgba(255,255,255,0.45); line-height: 1.75; }
+
+        /* ── COMPARE ── */
+        .compare { background: var(--off-white); text-align: center; }
+        .compare-head { max-width: 600px; margin: 0 auto 56px; }
+        .compare-head .section-p { margin: 0 auto; }
+        .comp-table {
+            max-width: 880px; margin: 0 auto; border-radius: 18px;
+            overflow: hidden; border: 1px solid var(--gray); background: var(--white);
+            box-shadow: 0 4px 32px rgba(0,0,0,0.05);
+        }
+        .comp-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; border-bottom: 1px solid var(--gray); }
+        .comp-row:last-child { border-bottom: none; }
+        .comp-head { background: var(--dark); }
+        .cc {
+            padding: 17px 18px; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+        }
+        .cc:first-child { justify-content: flex-start; text-align: left; }
+        .comp-head .cc { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.6px; }
+        .comp-head .cc:first-child { color: rgba(255,255,255,0.3); }
+        .comp-head .gr-col { background: var(--red); color: var(--white) !important; font-size: 14px; font-weight: 800; }
+        .gr-col { background: rgba(204,17,34,0.04); }
+        .comp-row.alt { background: rgba(0,0,0,0.015); }
+        .comp-row.alt .gr-col { background: rgba(204,17,34,0.06); }
+        .cc.feat-label { font-weight: 500; font-size: 14px; color: var(--text); }
+        .chk { color: #22C55E; font-size: 17px; font-weight: 700; }
+        .crs { color: #D1D5DB; font-size: 17px; }
+        .price-cell { font-weight: 800; font-size: 15px; }
+        .gr-price { color: var(--red) !important; }
+
+        /* ── TESTIMONIAL ── */
+        .testi { background: var(--white); padding: 90px 60px; }
+        .testi-inner { max-width: 820px; margin: 0 auto; text-align: center; }
+        .testi-quote {
+            font-size: clamp(20px, 3vw, 34px); font-weight: 800;
+            letter-spacing: -0.5px; line-height: 1.32; color: var(--text);
+            margin: 24px 0 32px;
+        }
+        .testi-author { display: flex; align-items: center; justify-content: center; gap: 14px; }
+        .avatar { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 15px; }
+        .author-name { font-size: 14px; font-weight: 700; text-align: left; }
+        .author-sub { font-size: 13px; color: var(--mid-gray); }
+        .gold { color: #F59E0B; font-size: 16px; letter-spacing: 2px; margin-left: 6px; }
+
+        /* ── CTA BANNER ── */
+        .cta-band { background: var(--red); text-align: center; padding: 96px 60px; }
+        .cta-band .eyebrow { color: rgba(255,255,255,0.65); }
+        .cta-band .section-h { color: var(--white); max-width: 660px; margin: 0 auto 16px; }
+        .cta-band p { color: rgba(255,255,255,0.72); font-size: 17px; margin-bottom: 40px; line-height: 1.7; }
+        .btn-white {
+            background: var(--white); color: var(--red); padding: 16px 40px;
+            border-radius: 8px; font-size: 15px; font-weight: 800;
+            display: inline-flex; align-items: center; gap: 8px;
+            cursor: pointer; border: none; font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.2); }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--black); color: rgba(255,255,255,0.35);
+            padding: 48px 60px; display: flex; justify-content: space-between;
+            align-items: center; flex-wrap: wrap; gap: 20px;
+        }
+        .foot-logo { font-size: 20px; font-weight: 900; color: var(--white); }
+        .foot-logo span { color: var(--red); }
+        .foot-links { display: flex; gap: 24px; list-style: none; }
+        .foot-links a { color: rgba(255,255,255,0.35); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+        .foot-links a:hover { color: rgba(255,255,255,0.75); }
+        footer p { font-size: 13px; }
+
+        /* ════════════════════════════ */
+        /* ── PRODUCT PAGE ── */
+        /* ════════════════════════════ */
+        .product-wrap { padding-top: 72px; }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            padding: 16px 60px; font-size: 13px; color: var(--mid-gray);
+            border-bottom: 1px solid var(--gray); display: flex; gap: 8px; align-items: center;
+        }
+        .breadcrumb a { color: var(--mid-gray); text-decoration: none; cursor: pointer; }
+        .breadcrumb a:hover { color: var(--text); }
+        .breadcrumb span { color: var(--text); font-weight: 600; }
+
+        /* Product Layout */
+        .prod-main {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 64px; max-width: 1240px; margin: 0 auto; padding: 52px 60px;
+        }
+
+        /* Gallery */
+        .gallery { position: sticky; top: 92px; }
+        .main-img-box {
+            border-radius: 18px; overflow: hidden;
+            background: var(--off-white); margin-bottom: 12px;
+            aspect-ratio: 4/3; cursor: zoom-in;
+        }
+        .main-img-box img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s; }
+        .main-img-box:hover img { transform: scale(1.04); }
+        .thumbs { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+        .thumb {
+            aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+            border: 2px solid transparent; cursor: pointer; transition: all 0.2s;
+            background: var(--off-white);
+        }
+        .thumb.on { border-color: var(--red); }
+        .thumb:hover:not(.on) { border-color: #ccc; }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* Info Panel */
+        .prod-info { padding-top: 6px; }
+        .in-stock {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: rgba(34,197,94,0.09); border: 1px solid rgba(34,197,94,0.2);
+            color: #16A34A; padding: 5px 14px; border-radius: 100px;
+            font-size: 12px; font-weight: 700; margin-bottom: 18px;
+        }
+        .in-stock::before { content: '●'; font-size: 8px; }
+        .prod-title { font-size: 38px; font-weight: 900; letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 7px; }
+        .prod-sub { font-size: 16px; color: var(--mid-gray); margin-bottom: 18px; }
+        .prod-rating { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+        .stars span { color: #F59E0B; font-size: 18px; }
+        .rat-txt { font-size: 14px; color: var(--mid-gray); }
+        .rat-txt strong { color: var(--text); }
+        .rat-link { font-size: 13px; color: var(--red); text-decoration: none; font-weight: 600; }
+        .divider { height: 1px; background: var(--gray); margin: 22px 0; }
+        .prod-price { display: flex; align-items: baseline; gap: 12px; margin-bottom: 22px; }
+        .price-big { font-size: 44px; font-weight: 900; letter-spacing: -2px; }
+        .price-note { font-size: 14px; color: var(--mid-gray); }
+        .prod-desc { font-size: 15px; color: #565656; line-height: 1.82; margin-bottom: 26px; }
+
+        /* Pills */
+        .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; }
+        .pill {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--off-white); border: 1px solid var(--gray);
+            padding: 7px 14px; border-radius: 100px;
+            font-size: 13px; font-weight: 600; color: var(--text);
+        }
+
+        /* Qty + Cart */
+        .qty-row { display: flex; align-items: center; gap: 0; margin-bottom: 14px; }
+        .qty-label { font-size: 14px; font-weight: 700; margin-right: 16px; }
+        .qty-btn {
+            width: 44px; height: 44px; border: 1px solid var(--gray);
+            background: var(--white); cursor: pointer; font-size: 20px; font-weight: 300;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s; color: var(--text);
+        }
+        .qty-btn:first-of-type { border-radius: 8px 0 0 8px; }
+        .qty-btn:last-of-type { border-radius: 0 8px 8px 0; }
+        .qty-btn:hover { background: var(--gray); }
+        .qty-val {
+            width: 52px; height: 44px;
+            border: 1px solid var(--gray); border-left: none; border-right: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 700;
+        }
+        .atc-btn {
+            width: 100%; background: var(--red); color: var(--white);
+            border: none; padding: 18px; border-radius: 10px;
+            font-size: 16px; font-weight: 800; cursor: pointer;
+            font-family: 'Inter', sans-serif; margin-bottom: 10px;
+            transition: all 0.2s; letter-spacing: 0.2px;
+        }
+        .atc-btn:hover { background: var(--red-dark); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(204,17,34,0.32); }
+        .wish-btn {
+            width: 100%; background: transparent; color: var(--text);
+            border: 1.5px solid var(--gray); padding: 15px; border-radius: 10px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            font-family: 'Inter', sans-serif; transition: border-color 0.2s;
+        }
+        .wish-btn:hover { border-color: var(--text); }
+
+        /* Trust */
+        .trust { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 22px; }
+        .trust-item {
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center; padding: 14px 10px; background: var(--off-white);
+            border-radius: 10px; gap: 5px;
+        }
+        .trust-ico { font-size: 22px; }
+        .trust-txt { font-size: 12px; font-weight: 700; line-height: 1.3; }
+
+        /* ── PRODUCT TABS ── */
+        .prod-tabs { max-width: 1240px; margin: 0 auto; padding: 0 60px 80px; }
+        .tab-nav { display: flex; border-bottom: 1px solid var(--gray); margin-bottom: 44px; }
+        .t-btn {
+            padding: 15px 26px; font-size: 14px; font-weight: 600;
+            color: var(--mid-gray); cursor: pointer; background: none;
+            border: none; border-bottom: 2px solid transparent;
+            font-family: 'Inter', sans-serif; margin-bottom: -1px; transition: all 0.2s;
+        }
+        .t-btn.on { color: var(--text); border-bottom-color: var(--red); }
+        .t-btn:hover:not(.on) { color: var(--text); }
+        .t-pane { display: none; }
+        .t-pane.on { display: block; }
+
+        /* Description pane */
+        .desc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .desc-txt h3 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 16px; }
+        .desc-txt p { font-size: 15px; color: #565656; line-height: 1.82; margin-bottom: 20px; }
+        .desc-list { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+        .desc-list li { display: flex; gap: 12px; font-size: 15px; align-items: flex-start; }
+        .desc-list li::before { content: '→'; color: var(--red); font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+        .desc-img img { width: 100%; border-radius: 18px; }
+
+        /* Specs pane */
+        .specs-tbl { max-width: 580px; }
+        .s-row { display: grid; grid-template-columns: 210px 1fr; padding: 15px 0; border-bottom: 1px solid var(--gray); }
+        .s-lbl { font-size: 13px; font-weight: 700; color: var(--mid-gray); text-transform: uppercase; letter-spacing: 0.6px; }
+        .s-val { font-size: 15px; font-weight: 500; color: var(--text); }
+
+        /* Included pane */
+        .included-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 14px; max-width: 720px; }
+        .inc-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 18px; background: var(--off-white);
+            border-radius: 12px; border: 1px solid var(--gray);
+        }
+        .inc-ico { font-size: 26px; }
+        .inc-name { font-size: 14px; font-weight: 700; }
+        .inc-sub { font-size: 12px; color: var(--mid-gray); margin-top: 2px; }
+
+        /* ── REVIEWS ── */
+        .reviews { background: var(--off-white); padding: 80px 60px; }
+        .rev-inner { max-width: 1240px; margin: 0 auto; }
+        .rev-top {
+            display: flex; justify-content: space-between;
+            align-items: flex-end; margin-bottom: 52px; flex-wrap: wrap; gap: 28px;
+        }
+        .rev-summary { display: flex; align-items: center; gap: 36px; }
+        .big-rating { text-align: center; }
+        .big-num { font-size: 68px; font-weight: 900; letter-spacing: -3px; line-height: 1; }
+        .big-stars span { color: #F59E0B; font-size: 20px; }
+        .big-count { font-size: 13px; color: var(--mid-gray); margin-top: 5px; }
+        .rat-bars { display: flex; flex-direction: column; gap: 7px; min-width: 190px; }
+        .bar-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--mid-gray); }
+        .bar-lbl { min-width: 26px; text-align: right; font-weight: 600; }
+        .bar-track { flex: 1; height: 5px; background: var(--gray); border-radius: 100px; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--red); border-radius: 100px; }
+        .bar-ct { min-width: 18px; font-weight: 600; }
+        .rev-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+        .rev-card {
+            background: var(--white); border-radius: 14px; padding: 26px;
+            border: 1px solid var(--gray);
+        }
+        .rev-hd { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+        .rev-user { display: flex; align-items: center; gap: 12px; }
+        .rev-av { width: 40px; height: 40px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 800; }
+        .rev-name { font-size: 14px; font-weight: 800; }
+        .rev-date { font-size: 12px; color: var(--mid-gray); margin-top: 2px; }
+        .rev-s span { color: #F59E0B; font-size: 14px; }
+        .rev-title { font-size: 15px; font-weight: 800; margin-bottom: 9px; }
+        .rev-body { font-size: 14px; color: #666; line-height: 1.72; }
+        .verified { font-size: 11px; color: #16A34A; font-weight: 700; margin-top: 12px; display: flex; align-items: center; gap: 4px; }
+
+        /* ── CART TOAST ── */
+        .toast {
+            position: fixed; bottom: 28px; right: 28px;
+            background: var(--dark); color: var(--white);
+            padding: 14px 22px; border-radius: 12px;
+            font-size: 14px; font-weight: 600;
+            display: flex; align-items: center; gap: 12px;
+            transform: translateY(90px); opacity: 0;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-ico { width: 32px; height: 32px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1080px) {
+            nav { padding: 0 30px; }
+            section, .stats-bar, .reviews { padding-left: 30px; padding-right: 30px; }
+            .feat-grid { grid-template-columns: repeat(2,1fr); }
+            .steps { grid-template-columns: 1fr; gap: 32px; }
+            .prod-main { grid-template-columns: 1fr; padding: 40px 30px; gap: 40px; }
+            .gallery { position: static; }
+            .prod-tabs { padding: 0 30px 60px; }
+            .reviews { padding: 60px 30px; }
+            .rev-grid { grid-template-columns: 1fr 1fr; }
+            .desc-grid { grid-template-columns: 1fr; }
+            .breadcrumb { padding: 14px 30px; }
+        }
+        @media (max-width: 700px) {
+            nav { padding: 0 18px; }
+            .nav-links { display: none; }
+            section { padding: 60px 18px; }
+            .stats-bar { padding: 28px 18px; gap: 24px; }
+            .hero h1 { letter-spacing: -1.5px; }
+            .feat-grid { grid-template-columns: 1fr; }
+            .comp-row { grid-template-columns: 1.6fr 1fr 1fr 1fr; }
+            .comp-row > *:last-child { display: none; }
+            .rev-grid { grid-template-columns: 1fr; }
+            .rev-summary { flex-direction: column; align-items: flex-start; }
+            footer { padding: 36px 18px; flex-direction: column; align-items: flex-start; }
+            .prod-main { padding: 28px 18px; }
+            .prod-tabs, .breadcrumb, .reviews { padding-left: 18px; padding-right: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ NAVIGATION ══ -->
+<nav>
+    <div class="nav-logo" onclick="goPage('home')">Grip<span>Rack</span></div>
+    <ul class="nav-links">
+        <li><a onclick="goPage('home'); scrollTo('#features')">Features</a></li>
+        <li><a onclick="goPage('home'); scrollTo('#hiw')">How It Works</a></li>
+        <li><a onclick="goPage('home'); scrollTo('#compare')">Compare</a></li>
+        <li><a class="nav-cta" onclick="goPage('product')">Buy Now — $299</a></li>
+    </ul>
+</nav>
+
+<!-- ══════════════════════════════ -->
+<!--  PAGE 1 · LANDING             -->
+<!-- ══════════════════════════════ -->
+<div id="home-page" class="page active">
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-eyebrow">🚲 Portable Suction Bike Rack</div>
+        <h1>Grip It.<br><span>Ride Anywhere.</span></h1>
+        <p class="hero-sub">The world's smartest suction-based bike rack. Mounts to any car in under 60 seconds — no tools, no damage, no drama.</p>
+        <div class="hero-buttons">
+            <button class="btn-primary" onclick="goPage('product')">
+                Shop Now — $299
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <button class="btn-outline" onclick="document.getElementById('hiw').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+        </div>
+        <div class="hero-img-wrap">
+            <img src="griprack-hero.jpg" alt="GripRack on car roof"
+                 onerror="this.style.cssText='display:block;width:100%;min-height:420px;border-radius:18px;background:linear-gradient(135deg,#1a1a1a 0%,#2a1a1a 60%,#1a1a1a 100%)'">
+            <div class="hero-img-fade"></div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="stats-bar">
+        <div class="stat"><div class="stat-n">60s</div><div class="stat-l">Install Time</div></div>
+        <div class="stat"><div class="stat-n">150+</div><div class="stat-l">lbs Holding Force</div></div>
+        <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Universal Fit</div></div>
+        <div class="stat"><div class="stat-n">4.9★</div><div class="stat-l">Customer Rating</div></div>
+    </div>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="feat-header">
+            <div class="eyebrow">Why GripRack</div>
+            <h2 class="section-h">Built for cyclists who actually move.</h2>
+            <p class="section-p">No mounting brackets. No car-specific hardware. Just industrial suction strength and smart, minimal design.</p>
+        </div>
+        <div class="feat-grid">
+            <div class="feat-card">
+                <div class="feat-icon">🎒</div>
+                <div class="feat-title">Ultra Portable</div>
+                <div class="feat-desc">Folds flat in seconds. Fits in your daypack. Built for riders who want freedom, not a permanent rack bolted to their car.</div>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon">🚗</div>
+                <div class="feat-title">Universal Fit</div>
+                <div class="feat-desc">Works on sedans, SUVs, coupes, and hatchbacks. No car-specific adapters, no compatibility headaches — ever.</div>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon">⚡</div>
+                <div class="feat-title">60-Second Setup</div>
+                <div class="feat-desc">Place. Press. Lock. Fewer suction points means faster setup without sacrificing a gram of security.</div>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon">🛡️</div>
+                <div class="feat-title">Built Tough</div>
+                <div class="feat-desc">Weather-resistant materials, a built-in pressure gauge, and 150+ lbs of holding force. Confidence at highway speeds.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="hiw" id="hiw">
+        <div class="hiw-head">
+            <div class="eyebrow" style="color:rgba(255,255,255,0.5)">Simple By Design</div>
+            <h2 class="section-h">Three steps.<br>Zero headaches.</h2>
+            <p class="section-p">We stripped out everything unnecessary. What's left is the cleanest bike transport solution on the market.</p>
+        </div>
+        <div class="steps">
+            <div>
+                <div class="step-num">01</div>
+                <div class="step-t">Place on Roof</div>
+                <div class="step-d">Set the GripRack suction base on any clean, smooth surface of your vehicle's roof. No prep needed.</div>
+            </div>
+            <div>
+                <div class="step-num">02</div>
+                <div class="step-t">Press & Lock</div>
+                <div class="step-d">Push down and twist the locking lever. The pressure gauge confirms a secure seal — you'll feel the grip.</div>
+            </div>
+            <div>
+                <div class="step-num">03</div>
+                <div class="step-t">Load & Go</div>
+                <div class="step-d">Slide your bike into the cradle, secure the strap, and hit the road. Total time: under 60 seconds.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMPARE -->
+    <section class="compare" id="compare">
+        <div class="compare-head">
+            <div class="eyebrow">vs. The Competition</div>
+            <h2 class="section-h">The rack that finally gets it right.</h2>
+            <p class="section-p">See how GripRack stacks up against the leading suction-based bike racks on the market.</p>
+        </div>
+        <div class="comp-table">
+            <div class="comp-row comp-head">
+                <div class="cc">Feature</div>
+                <div class="cc gr-col">GripRack</div>
+                <div class="cc">SeaSucker</div>
+                <div class="cc">RockBros</div>
+                <div class="cc">Tree Frog</div>
+            </div>
+            <div class="comp-row">
+                <div class="cc feat-label">Universal Car Fit</div>
+                <div class="cc gr-col"><span class="chk">✓</span></div>
+                <div class="cc"><span class="chk">✓</span></div>
+                <div class="cc"><span class="crs">✗</span></div>
+                <div class="cc"><span class="crs">✗</span></div>
+            </div>
+            <div class="comp-row alt">
+                <div class="cc feat-label">Under 60s Install</div>
+                <div class="cc gr-col"><span class="chk">✓</span></div>
+                <div class="cc"><span class="crs">✗</span></div>
+                <div class="cc"><span class="crs">✗</span></div>
+                <div class="cc"><span class="crs">✗</span></div>
+            </div>
+            <div class="comp-row">
+                <div class="cc feat-label">Truly Portable</div>
+                <div class="cc gr-col"><span class="chk">✓</span></div>
+                <div class="cc"><span class="crs">✗</span></div>
+                <div class="cc"><span class="chk">✓</span></div>
+                <div class="cc"><span class="crs">✗</span></div>
+            </div>
+            <div class="comp-row alt">
+                <div class="cc feat-label">Pressure Indicator</div>
+                <div class="cc gr-col"><span class="chk">✓</span></div>
+                <div class="cc"><span class="chk">✓</span></div>
+                <div class="cc"><span class="crs">✗</span></div>
+                <div class="cc"><span class="crs">✗</span></div>
+            </div>
+            <div class="comp-row">
+                <div class="cc feat-label">Weather Resistant</div>
+                <div class="cc gr-col"><span class="chk">✓</span></div>
+                <div class="cc"><span class="chk">✓</span></div>
+                <div class="cc"><span class="chk">✓</span></div>
+                <div class="cc"><span class="crs">✗</span></div>
+            </div>
+            <div class="comp-row alt">
+                <div class="cc feat-label">Price</div>
+                <div class="cc gr-col price-cell gr-price">$299</div>
+                <div class="cc price-cell">$400+</div>
+                <div class="cc price-cell">$180</div>
+                <div class="cc price-cell">$350+</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIAL -->
+    <section class="testi">
+        <div class="testi-inner">
+            <div class="eyebrow" style="text-align:center">What Riders Are Saying</div>
+            <blockquote class="testi-quote">
+                "I've used SeaSucker for years. GripRack is lighter, faster to set up, and I feel just as confident at highway speeds. No going back."
+            </blockquote>
+            <div class="testi-author">
+                <div class="avatar" style="background:var(--red)">MK</div>
+                <div>
+                    <div class="author-name">Marcus K.</div>
+                    <div class="author-sub">Road cyclist · Colorado</div>
+                </div>
+                <span class="gold">★★★★★</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA BAND -->
+    <section class="cta-band">
+        <div class="eyebrow">Limited Stock Available</div>
+        <h2 class="section-h">Ready to ride smarter?</h2>
+        <p>Join hundreds of cyclists who've made the switch. Free shipping on every order.</p>
+        <button class="btn-white" onclick="goPage('product')">
+            Get GripRack — $299
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="foot-logo">Grip<span>Rack</span></div>
+        <ul class="foot-links">
+            <li><a href="#">Features</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Shipping</a></li>
+            <li><a href="#">Returns</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+        <p>© 2024 GripRack. All rights reserved.</p>
+    </footer>
+</div>
+
+<!-- ══════════════════════════════ -->
+<!--  PAGE 2 · PRODUCT / PURCHASE  -->
+<!-- ══════════════════════════════ -->
+<div id="product-page" class="page">
+    <div class="product-wrap">
+
+        <!-- BREADCRUMB -->
+        <div class="breadcrumb">
+            <a onclick="goPage('home')">Home</a>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            <span>GripRack Pro</span>
+        </div>
+
+        <!-- PRODUCT MAIN -->
+        <div class="prod-main">
+
+            <!-- GALLERY -->
+            <div class="gallery">
+                <div class="main-img-box">
+                    <img id="mainImg"
+                         src="griprack-main.jpg"
+                         alt="GripRack Pro"
+                         onerror="this.style.cssText='display:block;width:100%;height:100%;min-height:360px;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);border-radius:0'">
+                </div>
+                <div class="thumbs">
+                    <div class="thumb on" onclick="switchImg(this, 'griprack-main.jpg')">
+                        <img src="griprack-main.jpg" alt="" onerror="this.parentElement.style.background='#e8e8e8'">
+                    </div>
+                    <div class="thumb" onclick="switchImg(this, 'griprack-angle.jpg')">
+                        <img src="griprack-angle.jpg" alt="" onerror="this.parentElement.style.background='#d8d8d8'">
+                    </div>
+                    <div class="thumb" onclick="switchImg(this, 'griprack-detail.jpg')">
+                        <img src="griprack-detail.jpg" alt="" onerror="this.parentElement.style.background='#e0e0e0'">
+                    </div>
+                    <div class="thumb" onclick="switchImg(this, 'griprack-hero.jpg')">
+                        <img src="griprack-hero.jpg" alt="" onerror="this.parentElement.style.background='#d0d0d0'">
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCT INFO -->
+            <div class="prod-info">
+                <div class="in-stock">In Stock — Ships in 2–3 Days</div>
+                <h1 class="prod-title">GripRack Pro</h1>
+                <p class="prod-sub">Portable Suction Bike Rack · Universal Fit</p>
+
+                <div class="prod-rating">
+                    <div class="stars">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                    <span class="rat-txt"><strong>4.9</strong> · 48 reviews</span>
+                    <a class="rat-link" onclick="document.getElementById('reviews').scrollIntoView({behavior:'smooth'})">Read reviews ↓</a>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="prod-price">
+                    <span class="price-big">$299</span>
+                    <span class="price-note">Free shipping · 30-day returns</span>
+                </div>
+
+                <p class="prod-desc">
+                    The GripRack Pro mounts to any smooth car surface in under 60 seconds — no tools, no adapters, no damage. Engineered for cyclists who want to move fast and travel light.
+                </p>
+
+                <div class="pills">
+                    <div class="pill">⚡ 60s Install</div>
+                    <div class="pill">🔒 Pressure Lock</div>
+                    <div class="pill">🚗 Universal</div>
+                    <div class="pill">🌧️ Weatherproof</div>
+                    <div class="pill">💪 150 lbs Hold</div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="qty-row">
+                    <span class="qty-label">Qty</span>
+                    <button class="qty-btn" onclick="adjustQty(-1)">−</button>
+                    <div class="qty-val" id="qtyVal">1</div>
+                    <button class="qty-btn" onclick="adjustQty(1)">+</button>
+                </div>
+
+                <button class="atc-btn" id="atcBtn" onclick="addToCart()">Add to Cart — $299</button>
+                <button class="wish-btn">♡ &nbsp; Save to Wishlist</button>
+
+                <div class="trust">
+                    <div class="trust-item"><div class="trust-ico">🚚</div><div class="trust-txt">Free Shipping</div></div>
+                    <div class="trust-item"><div class="trust-ico">↩️</div><div class="trust-txt">30-Day Returns</div></div>
+                    <div class="trust-item"><div class="trust-ico">🛡️</div><div class="trust-txt">2-Year Warranty</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUCT TABS -->
+        <div class="prod-tabs">
+            <div class="tab-nav">
+                <button class="t-btn on" onclick="switchTab('desc', this)">Description</button>
+                <button class="t-btn" onclick="switchTab('specs', this)">Specifications</button>
+                <button class="t-btn" onclick="switchTab('incl', this)">What's Included</button>
+            </div>
+
+            <!-- Description -->
+            <div class="t-pane on" id="tab-desc">
+                <div class="desc-grid">
+                    <div class="desc-txt">
+                        <h3>Engineering meets simplicity.</h3>
+                        <p>Traditional bike racks require permanent mounting or a hitch — neither works for every car, every time. GripRack was designed from scratch to change that.</p>
+                        <p>Industrial-grade suction creates over 150 lbs of holding force per mount, while the built-in pressure indicator confirms your seal before you hit the road.</p>
+                        <ul class="desc-list">
+                            <li>Attaches to any smooth rooftop — rubber base protects paint completely</li>
+                            <li>Supports up to 35 lbs bike weight per unit</li>
+                            <li>Compatible with road, mountain, and most hybrid frames</li>
+                            <li>Tested at 75+ mph sustained highway speed</li>
+                            <li>Aircraft-grade aluminum + weatherproof TPU construction</li>
+                        </ul>
+                    </div>
+                    <div class="desc-img">
+                        <img src="griprack-hero.jpg" alt="GripRack mounted"
+                             onerror="this.style.cssText='display:block;width:100%;min-height:300px;border-radius:18px;background:linear-gradient(135deg,#f0f0f0,#e0e0e0)'">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Specs -->
+            <div class="t-pane" id="tab-specs">
+                <div class="specs-tbl">
+                    <div class="s-row"><div class="s-lbl">Weight</div><div class="s-val">2.8 lbs per unit</div></div>
+                    <div class="s-row"><div class="s-lbl">Load Capacity</div><div class="s-val">35 lbs per rack unit</div></div>
+                    <div class="s-row"><div class="s-lbl">Suction Force</div><div class="s-val">150+ lbs holding force</div></div>
+                    <div class="s-row"><div class="s-lbl">Cup Diameter</div><div class="s-val">6.5 inches</div></div>
+                    <div class="s-row"><div class="s-lbl">Material</div><div class="s-val">Aircraft-grade aluminum + TPU rubber</div></div>
+                    <div class="s-row"><div class="s-lbl">Weather Rating</div><div class="s-val">IP54 — Rain & dust resistant</div></div>
+                    <div class="s-row"><div class="s-lbl">Speed Rated</div><div class="s-val">Tested to 75+ mph</div></div>
+                    <div class="s-row"><div class="s-lbl">Bike Fit</div><div class="s-val">Road, MTB, Hybrid (up to 3" tire)</div></div>
+                    <div class="s-row"><div class="s-lbl">Car Fit</div><div class="s-val">Any vehicle with smooth roof surface</div></div>
+                    <div class="s-row"><div class="s-lbl">Warranty</div><div class="s-val">2 years — full replacement</div></div>
+                </div>
+            </div>
+
+            <!-- Included -->
+            <div class="t-pane" id="tab-incl">
+                <div class="included-grid">
+                    <div class="inc-item"><div class="inc-ico">🔩</div><div><div class="inc-name">2× Suction Mounts</div><div class="inc-sub">Front & rear cradles</div></div></div>
+                    <div class="inc-item"><div class="inc-ico">🔗</div><div><div class="inc-name">Safety Tether</div><div class="inc-sub">Stainless steel cable</div></div></div>
+                    <div class="inc-item"><div class="inc-ico">🎽</div><div><div class="inc-name">Frame Straps</div><div class="inc-sub">Adjustable, padded</div></div></div>
+                    <div class="inc-item"><div class="inc-ico">🧽</div><div><div class="inc-name">Cleaning Cloth</div><div class="inc-sub">Microfiber surface prep</div></div></div>
+                    <div class="inc-item"><div class="inc-ico">👜</div><div><div class="inc-name">Carry Bag</div><div class="inc-sub">Compact storage pouch</div></div></div>
+                    <div class="inc-item"><div class="inc-ico">📋</div><div><div class="inc-name">Quick Start Guide</div><div class="inc-sub">Setup in 3 steps</div></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVIEWS -->
+        <div class="reviews" id="reviews">
+            <div class="rev-inner">
+                <div class="rev-top">
+                    <div>
+                        <div class="eyebrow">Customer Reviews</div>
+                        <h2 class="section-h" style="margin-bottom:0">What riders are saying</h2>
+                    </div>
+                    <div class="rev-summary">
+                        <div class="big-rating">
+                            <div class="big-num">4.9</div>
+                            <div class="big-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                            <div class="big-count">48 reviews</div>
+                        </div>
+                        <div class="rat-bars">
+                            <div class="bar-row"><span class="bar-lbl">5★</span><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div><span class="bar-ct">42</span></div>
+                            <div class="bar-row"><span class="bar-lbl">4★</span><div class="bar-track"><div class="bar-fill" style="width:10%"></div></div><span class="bar-ct">4</span></div>
+                            <div class="bar-row"><span class="bar-lbl">3★</span><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div><span class="bar-ct">2</span></div>
+                            <div class="bar-row"><span class="bar-lbl">2★</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span class="bar-ct">0</span></div>
+                            <div class="bar-row"><span class="bar-lbl">1★</span><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div><span class="bar-ct">0</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rev-grid">
+                    <div class="rev-card">
+                        <div class="rev-hd">
+                            <div class="rev-user">
+                                <div class="rev-av">MK</div>
+                                <div><div class="rev-name">Marcus K.</div><div class="rev-date">March 2024</div></div>
+                            </div>
+                            <div class="rev-s"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                        </div>
+                        <div class="rev-title">Blows SeaSucker out of the water</div>
+                        <div class="rev-body">I've used SeaSucker for 3 years. GripRack is noticeably lighter, sets up in half the time, and the pressure gauge is way easier to read. Highway confident at 70mph. Sold.</div>
+                        <div class="verified">✓ Verified Purchase</div>
+                    </div>
+                    <div class="rev-card">
+                        <div class="rev-hd">
+                            <div class="rev-user">
+                                <div class="rev-av" style="background:#1A1A1A">SL</div>
+                                <div><div class="rev-name">Sarah L.</div><div class="rev-date">February 2024</div></div>
+                            </div>
+                            <div class="rev-s"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                        </div>
+                        <div class="rev-title">Finally fits my Prius!</div>
+                        <div class="rev-body">Other racks required adapters or just didn't fit my car's weird roofline. GripRack just works. Loaded my road bike and drove 2 hours without a single issue.</div>
+                        <div class="verified">✓ Verified Purchase</div>
+                    </div>
+                    <div class="rev-card">
+                        <div class="rev-hd">
+                            <div class="rev-user">
+                                <div class="rev-av" style="background:#333">JT</div>
+                                <div><div class="rev-name">James T.</div><div class="rev-date">January 2024</div></div>
+                            </div>
+                            <div class="rev-s"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                        </div>
+                        <div class="rev-title">Perfect for rental cars</div>
+                        <div class="rev-body">I rent different cars depending on the trip. This is literally the only rack that works across all of them. Throw it in my backpack after the ride. 10/10.</div>
+                        <div class="verified">✓ Verified Purchase</div>
+                    </div>
+                    <div class="rev-card">
+                        <div class="rev-hd">
+                            <div class="rev-user">
+                                <div class="rev-av" style="background:#7A0A14">AP</div>
+                                <div><div class="rev-name">Anika P.</div><div class="rev-date">December 2023</div></div>
+                            </div>
+                            <div class="rev-s"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                        </div>
+                        <div class="rev-title">Setup is insanely fast</div>
+                        <div class="rev-body">I timed myself — 47 seconds from bag to locked and loaded. No other suction rack comes close. And it feels bomber solid. Zero movement at highway speed.</div>
+                        <div class="verified">✓ Verified Purchase</div>
+                    </div>
+                    <div class="rev-card">
+                        <div class="rev-hd">
+                            <div class="rev-user">
+                                <div class="rev-av" style="background:#444">RN</div>
+                                <div><div class="rev-name">Ryan N.</div><div class="rev-date">November 2023</div></div>
+                            </div>
+                            <div class="rev-s"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                        </div>
+                        <div class="rev-title">Mountain trip tested</div>
+                        <div class="rev-body">Drove through rain and serious mountain wind. Bike didn't budge. The sealing quality is genuinely impressive. Only wish there was a 2-bike version — but solo riding, it's perfect.</div>
+                        <div class="verified">✓ Verified Purchase</div>
+                    </div>
+                    <div class="rev-card">
+                        <div class="rev-hd">
+                            <div class="rev-user">
+                                <div class="rev-av" style="background:#CC1122">CW</div>
+                                <div><div class="rev-name">Chloe W.</div><div class="rev-date">October 2023</div></div>
+                            </div>
+                            <div class="rev-s"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                        </div>
+                        <div class="rev-title">Worth every dollar</div>
+                        <div class="rev-body">I almost bought the $450 SeaSucker. GripRack is better in every way that matters. Build quality feels premium. Looks great on the car. Zero regrets.</div>
+                        <div class="verified">✓ Verified Purchase</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <div class="foot-logo">Grip<span>Rack</span></div>
+            <ul class="foot-links">
+                <li><a href="#">Features</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">Shipping</a></li>
+                <li><a href="#">Returns</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+            <p>© 2024 GripRack. All rights reserved.</p>
+        </footer>
+    </div>
+</div>
+
+<!-- CART TOAST -->
+<div class="toast" id="toast">
+    <div class="toast-ico">🛒</div>
+    <span>GripRack Pro added to cart!</span>
+</div>
+
+<script>
+    // ── Page Navigation ──
+    function goPage(name) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(name + '-page').classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Image Gallery ──
+    function switchImg(el, src) {
+        document.querySelectorAll('.thumb').forEach(t => t.classList.remove('on'));
+        el.classList.add('on');
+        const main = document.getElementById('mainImg');
+        main.style.opacity = '0';
+        main.style.transition = 'opacity 0.25s';
+        setTimeout(() => {
+            main.src = src;
+            main.style.opacity = '1';
+        }, 250);
+    }
+
+    // ── Quantity ──
+    let qty = 1;
+    function adjustQty(d) {
+        qty = Math.max(1, qty + d);
+        document.getElementById('qtyVal').textContent = qty;
+        document.getElementById('atcBtn').textContent = `Add to Cart — $${299 * qty}`;
+    }
+
+    // ── Add to Cart ──
+    function addToCart() {
+        const btn = document.getElementById('atcBtn');
+        btn.textContent = '✓ Added!';
+        btn.style.background = '#16A34A';
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => {
+            btn.textContent = `Add to Cart — $${299 * qty}`;
+            btn.style.background = '';
+            toast.classList.remove('show');
+        }, 2800);
+    }
+
+    // ── Product Tabs ──
+    function switchTab(id, btn) {
+        document.querySelectorAll('.t-pane').forEach(p => p.classList.remove('on'));
+        document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('on'));
+        document.getElementById('tab-' + id).classList.add('on');
+        btn.classList.add('on');
+    }
+</script>
+</body>
+</html>
